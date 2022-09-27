@@ -1,18 +1,22 @@
+use std::fmt::format;
+
 pub(crate) struct Signature {
-    pub(crate) ident: String,
+    pub(crate) fn_name: String,
 }
 
 pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
     let names = signatures
         .iter()
-        .map(|x| x.ident.clone())
+        .map(|x| x.fn_name.clone())
         .collect::<Vec<String>>()
         .join(" ");
     let imports = signatures
         .iter()
         .map(|x| {
-            let ident = x.ident.clone();
-            format!("foreign import ccall unsafe \"c_{ident}\" {ident} :: IO ()")
+            let fn_name = &x.fn_name;
+            let hs_fn = fn_name.to_string();
+            let c_fn = format!("c_{fn_name}");
+            format!("foreign import ccall unsafe \"{c_fn}\" {hs_fn} :: IO ()")
         })
         .collect::<Vec<String>>()
         .join("\n");

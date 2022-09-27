@@ -1,6 +1,6 @@
 [package]
 name = "hs-bindgen"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Handy macro to generate Haskell bindings"
 license = "MIT"
