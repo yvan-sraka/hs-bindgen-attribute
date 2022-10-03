@@ -3,7 +3,7 @@
 //! Handy macro to generate C-FFI bindings from Rust to Haskell.
 //! 
 //! This library intended to work best in a project configured by
-//! [`hs-pack`](https://github.com/yvan-sraka/hs-pack).
+//! [`cabal-pack`](https://github.com/yvan-sraka/cabal-pack).
 //!
 //! ## Acknowledgments
 //!

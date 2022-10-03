@@ -1,8 +1,9 @@
 [package]
 name = "hs-bindgen"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "Handy macro to generate C-FFI bindings from Rust to Haskell"
+repository = "https://github.com/yvan-sraka/hs-bindgen"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,8 +12,9 @@ license = "MIT"
 proc-macro = true
 
 [dependencies]
+proc-macro2 = "1.0"
 quote = "1.0"
-toml = "0.5"
 semver = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-syn = { version = "1.0", features = [ "full", "extra-traits" ] }
+syn = { version = "1.0", features = [ "full" ] }
+toml = "0.5"
