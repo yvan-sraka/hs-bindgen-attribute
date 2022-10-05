@@ -1,4 +1,4 @@
-# This is required by doctests to works 
+# This is required by doctests to works
 
 default = "HsBindgen"
-version = "0.3.0"
+version = "0.3.1"

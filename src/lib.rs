@@ -1,7 +1,7 @@
 //! # `hs-bindgen`
 //!
 //! Handy macro to generate C-FFI bindings from Rust to Haskell.
-//! 
+//!
 //! This library intended to work best in a project configured by
 //! [`cabal-pack`](https://github.com/yvan-sraka/cabal-pack).
 //!
