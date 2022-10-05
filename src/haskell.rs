@@ -5,6 +5,17 @@ pub(crate) struct Signature {
     pub(crate) fn_type: Vec<String>,
 }
 
+impl std::fmt::Display for Signature {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!(
+            "{} :: {}",
+            self.fn_name,
+            self.fn_type.join(" -> ")
+        ))?;
+        Ok(())
+    }
+}
+
 /// Produce the content of `lib/{module}.hs` given a list of Signature
 pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
     let names = get_names(signatures);
@@ -28,7 +39,7 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
 
 module {module} ({names}) where
 
-import Foreign.C.String (CString)
+import Foreign.C.String
 
 {imports}"
     )
@@ -45,12 +56,7 @@ fn get_names(signatures: &[Signature]) -> String {
 fn get_imports(signatures: &[Signature]) -> String {
     signatures
         .iter()
-        .map(|x| {
-            let fn_name = &x.fn_name;
-            let fn_type = x.fn_type.join(" -> ");
-            let c_fn_name = format!("c_{fn_name}");
-            format!("foreign import ccall unsafe \"{c_fn_name}\" {fn_name} :: {fn_type}")
-        })
+        .map(|sig| format!("foreign import ccall unsafe \"c_{}\" {sig}", sig.fn_name))
         .collect::<Vec<String>>()
         .join("\n")
 }
