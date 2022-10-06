@@ -39,7 +39,7 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
 
 module {module} ({names}) where
 
-import Foreign.C.String
+import Foreign.C.String (CString)
 
 {imports}"
     )
