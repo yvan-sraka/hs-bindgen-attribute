@@ -9,14 +9,13 @@
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        sync-readme = cargo-sync-readme.defaultPackage.${system};
       in {
         devShell = with pkgs;
           mkShell {
             buildInputs = [
               cargo
-              cargo-sync-readme.defaultPackage.${system}
-              libiconv
-              pre-commit
+              sync-readme
               rust-analyzer
               rustc
               rustfmt

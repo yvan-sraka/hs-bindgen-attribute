@@ -1,8 +1,10 @@
+use hs_bindgen_traits::HsType;
+
 /// Data structure that represent an Haskell function signature:
 /// {fn_name} :: {fn_type[0]} -> {fn_type[1]} -> ... -> {fn_type[n-1]}
 pub(crate) struct Signature {
     pub(crate) fn_name: String,
-    pub(crate) fn_type: Vec<String>,
+    pub(crate) fn_type: Vec<HsType>,
 }
 
 impl std::fmt::Display for Signature {
@@ -10,7 +12,11 @@ impl std::fmt::Display for Signature {
         f.write_fmt(format_args!(
             "{} :: {}",
             self.fn_name,
-            self.fn_type.join(" -> ")
+            self.fn_type
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>()
+                .join(" -> ")
         ))?;
         Ok(())
     }
