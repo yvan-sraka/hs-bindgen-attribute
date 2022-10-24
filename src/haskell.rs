@@ -1,4 +1,5 @@
 use hs_bindgen_traits::HsType;
+use std::str::FromStr;
 
 /// Data structure that represent an Haskell function signature:
 /// {fn_name} :: {fn_type[0]} -> {fn_type[1]} -> ... -> {fn_type[n-1]}
@@ -9,7 +10,8 @@ pub(crate) struct Signature {
 
 impl std::fmt::Display for Signature {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!(
+        write!(
+            f,
             "{} :: {}",
             self.fn_name,
             self.fn_type
@@ -17,8 +19,27 @@ impl std::fmt::Display for Signature {
                 .map(|x| x.to_string())
                 .collect::<Vec<String>>()
                 .join(" -> ")
-        ))?;
-        Ok(())
+        )
+    }
+}
+
+impl FromStr for Signature {
+    type Err = String; // FIXME: rather use thiserror
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut x = s.split("::");
+        let fn_name = x
+            .next()
+            .ok_or("a function name should be specified (NAME :: TYPE)")?
+            .trim()
+            .to_string();
+        let fn_type = x
+            .next()
+            .ok_or("a function type should be specified (NAME :: TYPE)")?
+            .split("->")
+            .map(|x| x.trim().parse().unwrap())
+            .collect::<Vec<HsType>>();
+        Ok(Signature { fn_name, fn_type })
     }
 }
 
@@ -62,7 +83,7 @@ fn get_names(signatures: &[Signature]) -> String {
 fn get_imports(signatures: &[Signature]) -> String {
     signatures
         .iter()
-        .map(|sig| format!("foreign import ccall unsafe \"c_{}\" {sig}", sig.fn_name))
+        .map(|sig| format!("foreign import ccall unsafe \"__c_{}\" {sig}", sig.fn_name))
         .collect::<Vec<String>>()
         .join("\n")
 }
