@@ -13,13 +13,11 @@ mod toml;
 #[proc_macro_attribute]
 pub fn hs_bindgen(attrs: TokenStream, input: TokenStream) -> TokenStream {
     let mut output = input.clone();
+    let item_fn: syn::ItemFn = syn::parse(input)
+        .expect("failed to parse as Rust code the content of `#[hs_bindgen]` macro");
 
     // Generate extra Rust code that wrap our exposed function ...
-    let (signature, extern_c_wrapper) = rust::generate(
-        attrs.to_string().parse().ok(),
-        syn::parse(input)
-            .expect("failed to parse as Rust code the content of `#[hs_bindgen]` macro"),
-    );
+    let (signature, extern_c_wrapper) = rust::generate(attrs, item_fn);
 
     // Neat hack to keep track of all exposed functions ...
     static SIGNATURES: Mutex<Vec<haskell::Signature>> = Mutex::new(vec![]);

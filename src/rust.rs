@@ -10,21 +10,27 @@ const UNSUPPORTED_RETURN_TYPE: &str =
 
 /// Generate extra Rust code that wrap our exposed function
 pub(crate) fn generate(
-    sig: Option<haskell::Signature>,
+    attrs: TokenStream,
     item_fn: syn::ItemFn,
 ) -> (haskell::Signature, TokenStream) {
     let rust_fn = format_ident!("{}", item_fn.sig.ident.to_string());
-    let mut sig = match sig {
-        Some(sig) => sig,
-        None => haskell::Signature {
-            fn_name: rust_fn.to_string(),
-            fn_type: infer_hs_type(item_fn),
-        },
+    let mut sig = {
+        let s = attrs.to_string();
+        if s.is_empty() {
+            haskell::Signature {
+                fn_name: rust_fn.to_string(),
+                fn_type: infer_hs_type(item_fn),
+            }
+        } else {
+            s.parse().unwrap()
+        }
     };
 
-    // FIXME: ensure that Haskell signature end by `IO ()` type ...
-    let x: HsType = sig.fn_type.pop().expect(UNSUPPORTED_RETURN_TYPE);
-    assert!(x.to_string() == "IO ()", "{UNSUPPORTED_RETURN_TYPE}");
+    // Ensure that Haskell signature end by `IO` type
+    let ret = match sig.fn_type.pop().expect(UNSUPPORTED_RETURN_TYPE) {
+        HsType::IO(x) => x,
+        _ => panic!("{UNSUPPORTED_RETURN_TYPE}"),
+    };
 
     let mut c_fn_args = quote! {};
     let mut rust_fn_values = quote! {};
@@ -36,17 +42,15 @@ pub(crate) fn generate(
     }
 
     let c_fn = format_ident!("__c_{}", sig.fn_name);
+    let c_ret = ret.quote();
     let extern_c_wrapper = quote! {
         #[no_mangle] // Mangling randomize symbols
-        extern "C" fn #c_fn(#c_fn_args) {
-            // FIXME: this is a trick to currently not allow function that
-            // return argument, indeed this should be fixed ...
-            #rust_fn(#rust_fn_values)
+        extern "C" fn #c_fn(#c_fn_args) -> #c_ret {
+            traits::ReprRust::from(#rust_fn(#rust_fn_values))
         }
     };
 
-    // FIXME: again same hack, to force function to return `IO ()` ...
-    sig.fn_type.push(HsType::IO(Box::new(HsType::Empty)));
+    sig.fn_type.push(HsType::IO(ret));
 
     // DEBUG: println!("{extern_c_wrapper}");
     (sig, extern_c_wrapper.into())

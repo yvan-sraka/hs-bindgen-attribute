@@ -1,6 +1,6 @@
 [package]
 name = "hs-bindgen-derive"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 description = "Handy macro to generate C-FFI bindings from Rust to Haskell"
 repository = "https://github.com/yvan-sraka/hs-bindgen"
@@ -13,10 +13,12 @@ proc-macro = true
 
 [dependencies]
 antlion = "0.1"
-hs-bindgen-traits = "0.5"
+displaydoc = "0.2"
+hs-bindgen-traits = "0.5.1"
 proc-macro2 = "1.0"
 quote = "1.0"
 semver = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 syn = { version = "1.0", features = [ "full" ] }
 toml = "0.5"
+thiserror = "1.0"

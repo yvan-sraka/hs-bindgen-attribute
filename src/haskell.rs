@@ -1,5 +1,7 @@
+use displaydoc::Display;
 use hs_bindgen_traits::HsType;
 use std::str::FromStr;
+use thiserror::Error;
 
 /// Data structure that represent an Haskell function signature:
 /// {fn_name} :: {fn_type[0]} -> {fn_type[1]} -> ... -> {fn_type[n-1]}
@@ -23,22 +25,38 @@ impl std::fmt::Display for Signature {
     }
 }
 
+#[derive(Display, Error, Debug)]
+pub enum Error {
+    /** You should provide targeted Haskell type signature as attribute:
+     * `#[hs_bindgen(HS SIGNATURE)]`
+     */
+    MissingSig,
+    /** `{0}` is a Haskell function definition and should have the form:
+     * `NAME :: TYPE`
+     */
+    MalformedSig(String),
+    /** type `{0}` isn't in the list of supported Haskell types.
+     * Consider opening an issue https://github.com/yvan-sraka/hs-bindgen-traits
+     */
+    UnsupportedHsType(String),
+}
+
 impl FromStr for Signature {
-    type Err = String; // FIXME: rather use thiserror
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut x = s.split("::");
-        let fn_name = x
-            .next()
-            .ok_or("a function name should be specified (NAME :: TYPE)")?
-            .trim()
-            .to_string();
+        let fn_name = x.next().ok_or(Error::MissingSig)?.trim().to_string();
         let fn_type = x
             .next()
-            .ok_or("a function type should be specified (NAME :: TYPE)")?
+            .ok_or_else(|| Error::MalformedSig(s.to_string()))?
             .split("->")
-            .map(|x| x.trim().parse().unwrap())
-            .collect::<Vec<HsType>>();
+            .map(|ty| {
+                ty.parse::<HsType>()
+                    .map_err(|ty| Error::UnsupportedHsType(ty.to_string()))
+            })
+            .collect::<Result<Vec<HsType>, Error>>()?;
+        assert!(x.next().is_none(), "{}", Error::MalformedSig(s.to_string()));
         Ok(Signature { fn_name, fn_type })
     }
 }
