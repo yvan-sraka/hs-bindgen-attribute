@@ -6,6 +6,7 @@
 use proc_macro::TokenStream;
 use std::{fs, sync::Mutex};
 
+mod antlion;
 mod haskell;
 mod rust;
 mod toml;
