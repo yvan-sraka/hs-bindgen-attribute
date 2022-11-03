@@ -32,9 +32,14 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
 --   work on top of a `.rs` source file (or a `.rlib`, but this is unlikely as
 --   this format has purposely no public specifications).
 
+{{-# OPTIONS_GHC -Wno-unused-imports #-}}
+
 module {module} ({names}) where
 
-import Foreign.C.String (CString)
+import Data.Int
+import Data.Word
+import Foreign.C.Types
+import Foreign.C.String
 
 {imports}"
     )
@@ -42,6 +47,9 @@ import Foreign.C.String (CString)
 
 /// Data structure that represent an Haskell function signature:
 /// {fn_name} :: {fn_type[0]} -> {fn_type[1]} -> ... -> {fn_type[n-1]}
+///
+/// FIXME: consider moving this struct and its traits' implementation into
+/// `hs-bindgen-traits`
 pub(crate) struct Signature {
     pub(crate) fn_name: String,
     pub(crate) fn_type: Vec<HsType>,
@@ -62,20 +70,6 @@ impl std::fmt::Display for Signature {
     }
 }
 
-#[derive(Display, Error, Debug)]
-pub enum Error {
-    /** you should provide targeted Haskell type signature as attribute:
-     * `#[hs_bindgen(HS SIGNATURE)]`
-     */
-    MissingSig,
-    /** given Haskell function definition is `{0}` but should have the form:
-     * `NAME :: TYPE`
-     */
-    MalformedSig(String),
-    /// Haskell type error: {0}
-    HsType(String),
-}
-
 impl FromStr for Signature {
     type Err = Error;
 
@@ -94,4 +88,18 @@ impl FromStr for Signature {
         assert!(x.next().is_none(), "{}", Error::MalformedSig(s.to_string()));
         Ok(Signature { fn_name, fn_type })
     }
+}
+
+#[derive(Display, Error, Debug)]
+pub enum Error {
+    /** you should provide targeted Haskell type signature as attribute:
+     * `#[hs_bindgen(HS SIGNATURE)]`
+     */
+    MissingSig,
+    /** given Haskell function definition is `{0}` but should have the form:
+     * `NAME :: TYPE`
+     */
+    MalformedSig(String),
+    /// Haskell type error: {0}
+    HsType(String),
 }

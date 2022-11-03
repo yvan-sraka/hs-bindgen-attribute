@@ -25,7 +25,7 @@ n.b. you have to run the command `cabal-pack` to generate it",
 
 /// Compatibility constraints on `cabal-pack` version used
 fn check_version(config: &Config) {
-    let req = VersionReq::parse("<=0.5").unwrap();
+    let req = VersionReq::parse("<=0.6").unwrap();
     let version = config
         .version
         .as_ref()

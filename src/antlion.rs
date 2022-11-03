@@ -1,5 +1,16 @@
 use crate::haskell;
 use hs_bindgen_traits::HsType;
+use quote::quote;
+
+#[cfg(feature = "antlion")]
+lazy_static::lazy_static! {
+    static ref SANDBOX: antlion::Sandbox =
+        antlion::Sandbox::new("hs-bindgen")
+            .unwrap()
+            .deps(&["hs-bindgen-traits@0.6"])
+            .unwrap()
+    ;
+}
 
 /// Use Rust type inference (inside a `antlion` sandbox) to deduce targeted
 /// Haskell type signature that match a given `TokenStream` of a Rust `fn`
@@ -8,10 +19,6 @@ pub(crate) trait Eval<T> {
 }
 
 impl Eval<&syn::ItemFn> for haskell::Signature {
-    #[cfg(not(feature = "antlion"))]
-    fn from(_: &syn::ItemFn) -> Self {
-        unreachable!()
-    }
     #[cfg(feature = "antlion")]
     fn from(item_fn: &syn::ItemFn) -> Self {
         let fn_name = item_fn.sig.ident.to_string();
@@ -28,19 +35,16 @@ impl Eval<&syn::ItemFn> for haskell::Signature {
         })));
         haskell::Signature { fn_name, fn_type }
     }
+    #[cfg(not(feature = "antlion"))]
+    fn from(_: &syn::ItemFn) -> Self {
+        unreachable!()
+    }
 }
 
 #[cfg(feature = "antlion")]
 impl Eval<&syn::Type> for HsType {
     fn from(ty: &syn::Type) -> HsType {
-        use antlion::Sandbox;
-        use quote::quote;
-        // FIXME: This should rather be instantiate in a `lazy_static!` block ...
-        let sandbox = Sandbox::new("hs-bindgen")
-            .unwrap()
-            .deps(&["hs-bindgen-traits@0.5"])
-            .unwrap();
-        sandbox
+        SANDBOX
             .eval(quote! {
                 <#ty as hs_bindgen_traits::ReprHs>::into()
             })

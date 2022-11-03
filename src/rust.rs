@@ -11,7 +11,7 @@ pub(crate) fn generate(
     let rust_fn = format_ident!("{}", item_fn.sig.ident.to_string());
 
     // Parse targeted Haskell function signature either from proc macro
-    // attributes or eithre from types from Rust `fn` item (using feature
+    // attributes or either from types from Rust `fn` item (using feature
     // `antlion` which is enabled by default) ...
     let mut sig = {
         let s = attrs.to_string();
@@ -37,7 +37,7 @@ pub(crate) fn generate(
         let arg = format_ident!("__{i}");
         let c_ffi_safe_type = hs_c_ffi_type.quote();
         c_fn_args.extend(quote! { #arg: #c_ffi_safe_type, });
-        rust_fn_values.extend(quote! { traits::ReprC::from(#arg), });
+        rust_fn_values.extend(quote! { traits::ReprRust::from(#arg), });
     }
 
     // Generate C-FFI wrapper of Rust function ...
@@ -46,7 +46,18 @@ pub(crate) fn generate(
     let extern_c_wrapper = quote! {
         #[no_mangle] // Mangling randomize symbols
         extern "C" fn #c_fn(#c_fn_args) -> #c_ret {
-            traits::ReprRust::from(#rust_fn(#rust_fn_values))
+            // `traits` module is `hs-bindgen::hs-bindgen-traits`
+            // n.b. do not forget to import it, e.g., with `use hs-bindgen::*`
+            let x = traits::ReprC::from(#rust_fn(#rust_fn_values));
+            // since the value is passed to Haskell runtime we want Rust to never
+            // drop it!
+            std::mem::forget(x);
+            // FIXME: I should double-check that this does not leak memory and
+            // that the value is well handled by GHC tracing Garbage Collector
+            x
+            // if not, we should export a utility function to let user drop
+            // the value, this technique was suggested e.g. here:
+            // https://stackoverflow.com/questions/39224904
         }
     };
 
