@@ -9,7 +9,7 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
         .iter()
         .map(|x| x.fn_name.clone())
         .collect::<Vec<String>>()
-        .join(" ");
+        .join(", ");
     let imports = signatures
         .iter()
         .map(|sig| format!("foreign import ccall unsafe \"__c_{}\" {sig}", sig.fn_name))
@@ -38,8 +38,9 @@ module {module} ({names}) where
 
 import Data.Int
 import Data.Word
-import Foreign.C.Types
 import Foreign.C.String
+import Foreign.C.Types
+import Foreign.Ptr
 
 {imports}"
     )

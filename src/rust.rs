@@ -48,16 +48,7 @@ pub(crate) fn generate(
         extern "C" fn #c_fn(#c_fn_args) -> #c_ret {
             // `traits` module is `hs-bindgen::hs-bindgen-traits`
             // n.b. do not forget to import it, e.g., with `use hs-bindgen::*`
-            let x = traits::ReprC::from(#rust_fn(#rust_fn_values));
-            // since the value is passed to Haskell runtime we want Rust to never
-            // drop it!
-            std::mem::forget(x);
-            // FIXME: I should double-check that this does not leak memory and
-            // that the value is well handled by GHC tracing Garbage Collector
-            x
-            // if not, we should export a utility function to let user drop
-            // the value, this technique was suggested e.g. here:
-            // https://stackoverflow.com/questions/39224904
+            traits::ReprC::from(#rust_fn(#rust_fn_values))
         }
     };
 

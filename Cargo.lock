@@ -25,7 +25,7 @@ dependencies = [
 
 [[package]]
 name = "hs-bindgen-derive"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "antlion",
  "displaydoc",
@@ -41,9 +41,9 @@ dependencies = [
 
 [[package]]
 name = "hs-bindgen-traits"
-version = "0.6.0"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdf1a0d57c624d333922aca447e3895cd02043cf3ec8540cba69867c77500f57"
+checksum = "a073bef3de2b35a2b95ba57bac0682dc873a69a82cbacc1a0a5c2a6aac929175"
 dependencies = [
  "displaydoc",
  "proc-macro2",
