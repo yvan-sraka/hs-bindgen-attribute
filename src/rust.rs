@@ -16,7 +16,9 @@ pub(crate) fn generate(
     let mut sig = {
         let s = attrs.to_string();
         if cfg!(feature = "antlion") && s.is_empty() {
-            <haskell::Signature as antlion::Eval<&syn::ItemFn>>::from(&item_fn)
+            let sig = <haskell::Signature as antlion::Eval<&syn::ItemFn>>::from(&item_fn);
+            antlion::warning(&sig);
+            sig
         } else {
             s.parse().unwrap_or_else(|e| panic!("{e}"))
         }
