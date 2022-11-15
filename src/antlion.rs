@@ -1,13 +1,13 @@
 use crate::haskell;
+#[cfg(feature = "antlion")]
 use hs_bindgen_traits::HsType;
-use quote::quote;
 
 #[cfg(feature = "antlion")]
 lazy_static::lazy_static! {
     static ref SANDBOX: antlion::Sandbox =
         antlion::Sandbox::new("hs-bindgen")
             .unwrap()
-            .deps(&["hs-bindgen-traits@0.6"])
+            .deps(&["hs-bindgen-traits@0.7"])
             .unwrap()
     ;
 }
@@ -44,6 +44,7 @@ impl Eval<&syn::ItemFn> for haskell::Signature {
 #[cfg(feature = "antlion")]
 impl Eval<&syn::Type> for HsType {
     fn from(ty: &syn::Type) -> HsType {
+        use quote::quote;
         SANDBOX
             .eval(quote! {
                 <#ty as hs_bindgen_traits::ReprHs>::into()

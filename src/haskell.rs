@@ -75,6 +75,7 @@ impl FromStr for Signature {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        (!s.is_empty()).then_some(()).ok_or(Error::MissingSig)?;
         let mut x = s.split("::");
         let fn_name = x.next().ok_or(Error::MissingSig)?.trim().to_string();
         let fn_type = x

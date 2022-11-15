@@ -6,7 +6,7 @@ license = "MIT OR Apache-2.0"
 name = "hs-bindgen-derive"
 repository = "https://github.com/yvan-sraka/hs-bindgen"
 rust-version = "1.64.0"
-version = "0.6.2"
+version = "0.7.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -26,7 +26,8 @@ thiserror = "1.0"
 toml = "0.5"
 
 [features]
-default = ["antlion"]
+default = []
+full = ["antlion"]
 antlion = ["dep:antlion", "dep:lazy_static"]
 
 [build-dependencies]

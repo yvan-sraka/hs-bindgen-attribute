@@ -19,6 +19,8 @@
 //! for inclusion in this project by you, as defined in the Apache-2.0 license,
 //! shall be dual licensed as above, without any additional terms or conditions.
 
+#![forbid(unsafe_code)]
+
 #![cfg_attr(DIAGNOSTICS, feature(proc_macro_diagnostic))]
 
 use proc_macro::TokenStream;
