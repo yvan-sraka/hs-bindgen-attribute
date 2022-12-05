@@ -1,5 +1,5 @@
 use crate::{antlion, haskell};
-use hs_bindgen_traits::HsType;
+use hs_bindgen_types::HsType;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 
@@ -23,6 +23,14 @@ pub(crate) fn generate(
             s.parse().unwrap_or_else(|e| panic!("{e}"))
         }
     };
+
+    // Ensure that signature not contain too much args ...
+    if sig.fn_type.len() > 8 {
+        panic!(
+            "Too many arguments! GHC C-ABI implementation does not currently behave well \
+with function with more than 8 arguments on platforms apart from x86_64 ..."
+        )
+    }
 
     // Ensure that Haskell signature end by `IO` type ...
     const UNSUPPORTED_RETURN_TYPE: &str =

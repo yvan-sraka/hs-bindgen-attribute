@@ -1,5 +1,5 @@
 use displaydoc::Display;
-use hs_bindgen_traits::HsType;
+use hs_bindgen_types::HsType;
 use std::str::FromStr;
 use thiserror::Error;
 
@@ -50,7 +50,7 @@ import Foreign.Ptr
 /// {fn_name} :: {fn_type[0]} -> {fn_type[1]} -> ... -> {fn_type[n-1]}
 ///
 /// FIXME: consider moving this struct and its traits' implementation into
-/// `hs-bindgen-traits`
+/// `hs-bindgen-types`
 pub(crate) struct Signature {
     pub(crate) fn_name: String,
     pub(crate) fn_type: Vec<HsType>,

@@ -1,6 +1,6 @@
 <!-- cargo-sync-readme start -->
 
-# `hs-bindgen-derive`
+# `hs-bindgen-attribute`
 
 This library define the `#[hs_bindgen]` procedural macro used by
 [`hs-bindgen`](https://github.com/yvan-sraka/hs-bindgen) library.

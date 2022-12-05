@@ -3,10 +3,10 @@ authors = ["Yvan Sraka <yvan@sraka.xyz>"]
 description = "Handy macro to generate C-FFI bindings from Rust to Haskell"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-name = "hs-bindgen-derive"
+name = "hs-bindgen-attribute"
 repository = "https://github.com/yvan-sraka/hs-bindgen"
 rust-version = "1.64.0"
-version = "0.7.0"
+version = "0.7.1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,7 +16,7 @@ proc-macro = true
 [dependencies]
 antlion = { version = "0.3", optional = true }
 displaydoc = "0.2"
-hs-bindgen-traits = "0.6"
+hs-bindgen-types = "0.7"
 lazy_static = { version = "1.4", optional = true }
 quote = "1.0"
 semver = "1.0"

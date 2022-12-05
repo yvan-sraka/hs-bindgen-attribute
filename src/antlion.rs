@@ -1,13 +1,13 @@
 use crate::haskell;
 #[cfg(feature = "antlion")]
-use hs_bindgen_traits::HsType;
+use hs_bindgen_types::HsType;
 
 #[cfg(feature = "antlion")]
 lazy_static::lazy_static! {
     static ref SANDBOX: antlion::Sandbox =
         antlion::Sandbox::new("hs-bindgen")
             .unwrap()
-            .deps(&["hs-bindgen-traits@0.7"])
+            .deps(&["hs-bindgen-types@0.7"])
             .unwrap()
     ;
 }

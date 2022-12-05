@@ -1,4 +1,4 @@
-//! # `hs-bindgen-derive`
+//! # `hs-bindgen-attribute`
 //!
 //! This library define the `#[hs_bindgen]` procedural macro used by
 //! [`hs-bindgen`](https://github.com/yvan-sraka/hs-bindgen) library.
@@ -20,7 +20,6 @@
 //! shall be dual licensed as above, without any additional terms or conditions.
 
 #![forbid(unsafe_code)]
-
 #![cfg_attr(DIAGNOSTICS, feature(proc_macro_diagnostic))]
 
 use proc_macro::TokenStream;
@@ -45,10 +44,10 @@ pub fn hs_bindgen(attrs: TokenStream, input: TokenStream) -> TokenStream {
     let signatures = &mut *SIGNATURES.lock().unwrap();
     signatures.push(signature);
 
-    // Generate Haskell bindings into module defined in `.hsbindgen` config ...
+    // Generate Haskell bindings into module defined in `hsbindgen.toml` config ...
     let module = toml::config()
         .default
-        .expect("your `.hsbindgen` file should contain a `default` field");
+        .expect("your `hsbindgen.toml` file should contain a `default` field");
     fs::write(
         format!("src/{module}.hs"),
         haskell::template(&module, signatures),
