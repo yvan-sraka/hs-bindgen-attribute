@@ -47,12 +47,12 @@ impl Eval<&syn::Type> for HsType {
         use quote::quote;
         SANDBOX
             .eval(quote! {
-                <#ty as hs_bindgen_traits::ReprHs>::into()
+                <#ty as hs_bindgen_types::ReprHs>::into()
             })
             .unwrap_or_else(|_| {
                 panic!(
                     "type `{}` doesn't implement `ReprHs` trait
-consider opening an issue https://github.com/yvan-sraka/hs-bindgen-traits
+consider opening an issue https://github.com/yvan-sraka/hs_bindgen_types
 
 n.b. if you trying to use a custom defined type, you need to specify the
 Haskell type signature of your binding: #[hs_bindgen(HASKELL TYPE SIGNATURE)]",

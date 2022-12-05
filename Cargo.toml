@@ -4,9 +4,9 @@ description = "Handy macro to generate C-FFI bindings from Rust to Haskell"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 name = "hs-bindgen-attribute"
-repository = "https://github.com/yvan-sraka/hs-bindgen"
+repository = "https://github.com/yvan-sraka/hs-bindgen-attribute"
 rust-version = "1.64.0"
-version = "0.7.1"
+version = "0.7.2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
