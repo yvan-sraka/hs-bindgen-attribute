@@ -7,7 +7,7 @@ lazy_static::lazy_static! {
     static ref SANDBOX: antlion::Sandbox =
         antlion::Sandbox::new("hs-bindgen")
             .unwrap()
-            .deps(&["hs-bindgen-types@0.7"])
+            .deps(&["hs-bindgen-types@0.8"])
             .unwrap()
     ;
 }
@@ -22,6 +22,7 @@ impl Eval<&syn::ItemFn> for haskell::Signature {
     #[cfg(feature = "antlion")]
     fn from(item_fn: &syn::ItemFn) -> Self {
         let fn_name = item_fn.sig.ident.to_string();
+        let fn_safe = true;
         let mut fn_type = vec![];
         for arg in &item_fn.sig.inputs {
             fn_type.push(<HsType as Eval<&syn::Type>>::from(match arg {
@@ -33,7 +34,11 @@ impl Eval<&syn::ItemFn> for haskell::Signature {
             syn::ReturnType::Type(_, p) => <HsType as Eval<&syn::Type>>::from(p),
             _ => HsType::Empty,
         })));
-        haskell::Signature { fn_name, fn_type }
+        haskell::Signature {
+            fn_name,
+            fn_safe,
+            fn_type,
+        }
     }
     #[cfg(not(feature = "antlion"))]
     fn from(_: &syn::ItemFn) -> Self {

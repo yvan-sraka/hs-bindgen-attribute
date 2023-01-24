@@ -26,7 +26,7 @@ n.b. you have to run the command `cargo-cabal` to generate it",
 
 /// Compatibility constraints on `cargo-cabal` version used
 fn check_version(config: &Config) {
-    let req = VersionReq::parse("<=0.7").unwrap();
+    let req = VersionReq::parse("<=0.8").unwrap();
     let version = config
         .version
         .as_ref()

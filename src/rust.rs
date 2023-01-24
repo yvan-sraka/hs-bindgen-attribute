@@ -54,7 +54,8 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
     let c_fn = format_ident!("__c_{}", sig.fn_name);
     let c_ret = ret.quote();
     let extern_c_wrapper = quote! {
-        #[no_mangle] // Mangling randomize symbols
+        #[no_mangle] // Mangling makes symbol names more difficult to predict.
+                     // We disable it to ensure that the resulting symbol is really `__c_{NAME}`.
         extern "C" fn #c_fn(#c_fn_args) -> #c_ret {
             // `traits` module is `hs-bindgen::hs-bindgen-traits`
             // n.b. do not forget to import it, e.g., with `use hs-bindgen::*`
