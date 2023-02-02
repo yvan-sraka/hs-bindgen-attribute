@@ -23,10 +23,10 @@
 #![cfg_attr(DIAGNOSTICS, feature(proc_macro_diagnostic))]
 
 use proc_macro::TokenStream;
-use std::{fs, sync::Mutex};
+use std::{fs, path::Path, sync::Mutex};
 
-mod antlion;
 mod haskell;
+mod reflexive;
 mod rust;
 mod toml;
 
@@ -48,11 +48,11 @@ pub fn hs_bindgen(attrs: TokenStream, input: TokenStream) -> TokenStream {
     let module = toml::config()
         .default
         .expect("your `hsbindgen.toml` file should contain a `default` field");
-    fs::write(
-        format!("src/{module}.hs"),
-        haskell::template(&module, signatures),
-    )
-    .unwrap_or_else(|_| panic!("fail to write `src/{module}.hs` file"));
+    let cargo_manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
+        .expect("environment variable `CARGO_MANIFEST_DIR` must be set");
+    let path = Path::new(&cargo_manifest_dir).join(format!("src/{}.hs", module));
+    fs::write(&path, haskell::template(&module, signatures))
+        .unwrap_or_else(|_| panic!("fail to write `{}` file", path.display()));
 
     output.extend(extern_c_wrapper);
     output

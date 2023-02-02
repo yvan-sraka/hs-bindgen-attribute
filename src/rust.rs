@@ -1,4 +1,4 @@
-use crate::{antlion, haskell};
+use crate::{haskell, reflexive};
 use hs_bindgen_types::HsType;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
@@ -12,12 +12,12 @@ pub(crate) fn generate(
 
     // Parse targeted Haskell function signature either from proc macro
     // attributes or either from types from Rust `fn` item (using feature
-    // `antlion` which is enabled by default) ...
+    // `reflexive` which is enabled by default) ...
     let mut sig = {
         let s = attrs.to_string();
-        if cfg!(feature = "antlion") && s.is_empty() {
-            let sig = <haskell::Signature as antlion::Eval<&syn::ItemFn>>::from(&item_fn);
-            antlion::warning(&sig);
+        if cfg!(feature = "reflexive") && s.is_empty() {
+            let sig = <haskell::Signature as reflexive::Eval<&syn::ItemFn>>::from(&item_fn);
+            reflexive::warning(&sig);
             sig
         } else {
             s.parse().unwrap_or_else(|e| panic!("{e}"))
@@ -55,7 +55,7 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
     let c_ret = ret.quote();
     let extern_c_wrapper = quote! {
         #[no_mangle] // Mangling makes symbol names more difficult to predict.
-                     // We disable it to ensure that the resulting symbol is really `__c_{NAME}`.
+                     // We disable it to ensure that the resulting symbol is really `#c_fn`.
         extern "C" fn #c_fn(#c_fn_args) -> #c_ret {
             // `traits` module is `hs-bindgen::hs-bindgen-traits`
             // n.b. do not forget to import it, e.g., with `use hs-bindgen::*`
