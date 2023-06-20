@@ -1,25 +1,25 @@
 use crate::haskell;
-#[cfg(feature = "antlion")]
+#[cfg(feature = "reflexive")]
 use hs_bindgen_types::HsType;
 
-#[cfg(feature = "antlion")]
+#[cfg(feature = "reflexive")]
 lazy_static::lazy_static! {
-    static ref SANDBOX: antlion::Sandbox =
-        antlion::Sandbox::new("hs-bindgen")
+    static ref SANDBOX: reflexive::Sandbox =
+        reflexive::Sandbox::new("hs-bindgen")
             .unwrap()
             .deps(&["hs-bindgen-types@0.8"])
             .unwrap()
     ;
 }
 
-/// Use Rust type inference (inside a `antlion` sandbox) to deduce targeted
+/// Use Rust type inference (inside a `reflexive` sandbox) to deduce targeted
 /// Haskell type signature that match a given `TokenStream` of a Rust `fn`
 pub(crate) trait Eval<T> {
     fn from(_: T) -> Self;
 }
 
 impl Eval<&syn::ItemFn> for haskell::Signature {
-    #[cfg(feature = "antlion")]
+    #[cfg(feature = "reflexive")]
     fn from(item_fn: &syn::ItemFn) -> Self {
         let fn_name = item_fn.sig.ident.to_string();
         let fn_safe = true;
@@ -40,13 +40,13 @@ impl Eval<&syn::ItemFn> for haskell::Signature {
             fn_type,
         }
     }
-    #[cfg(not(feature = "antlion"))]
+    #[cfg(not(feature = "reflexive"))]
     fn from(_: &syn::ItemFn) -> Self {
         unreachable!()
     }
 }
 
-#[cfg(feature = "antlion")]
+#[cfg(feature = "reflexive")]
 impl Eval<&syn::Type> for HsType {
     fn from(ty: &syn::Type) -> HsType {
         use quote::quote;
@@ -67,7 +67,7 @@ Haskell type signature of your binding: #[hs_bindgen(HASKELL TYPE SIGNATURE)]",
     }
 }
 
-/// Warn user about the build-time cost of relying on `antlion` ...
+/// Warn user about the build-time cost of relying on `reflexive` ...
 ///
 /// n.b. proc-macro diagnostics require nightly `proc_macro_diagnostic` feature
 pub(crate) fn warning(_sig: &haskell::Signature) {

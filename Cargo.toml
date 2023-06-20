@@ -6,7 +6,7 @@ license = "MIT OR Apache-2.0"
 name = "hs-bindgen-attribute"
 repository = "https://github.com/yvan-sraka/hs-bindgen-attribute"
 rust-version = "1.64.0"
-version = "0.8.0"
+version = "0.8.1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -14,7 +14,7 @@ version = "0.8.0"
 proc-macro = true
 
 [dependencies]
-antlion = { version = "0.3", optional = true }
+reflexive = { version = "0.4", optional = true }
 displaydoc = "0.2"
 hs-bindgen-types = "0.8"
 lazy_static = { version = "1.4", optional = true }
@@ -27,8 +27,8 @@ toml = "0.5"
 
 [features]
 default = []
-full = ["antlion"]
-antlion = ["dep:antlion", "dep:lazy_static"]
+full = ["reflexive"]
+reflexive = ["dep:reflexive", "dep:lazy_static"]
 
 [build-dependencies]
 rustc_version = "0.2"
