@@ -1,5 +1,5 @@
 use displaydoc::Display;
-use hs_bindgen_types::HsType;
+use hs_bindgen_types::{ArrowIter, HsType};
 use std::str::FromStr;
 use thiserror::Error;
 
@@ -134,10 +134,8 @@ impl FromStr for Signature {
         }
         .trim_start()
         .to_string();
-        let fn_type = x
-            .next()
-            .ok_or_else(|| Error::MalformedSig(s.to_string()))?
-            .split("->")
+
+        let fn_type = ArrowIter::from(x.next().ok_or_else(|| Error::MalformedSig(s.to_string()))?)
             .map(|ty| {
                 ty.parse::<HsType>()
                     .map_err(|ty| Error::HsType(ty.to_string()))
