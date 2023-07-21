@@ -5,6 +5,7 @@ use thiserror::Error;
 
 /// Produce the content of `lib/{module}.hs` given a list of Signature
 pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
+    let modulename = module.replace("/", ".");
     let names = signatures
         .iter()
         .map(|x| x.fn_name.clone())
@@ -45,7 +46,7 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
 
 {{-# OPTIONS_GHC -Wno-unused-imports #-}}
 
-module {module} ({names}) where
+module {modulename} ({names}) where
 
 import Data.Int
 import Data.Word
