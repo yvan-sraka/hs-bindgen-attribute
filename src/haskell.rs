@@ -14,16 +14,21 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
     let imports = signatures
         .iter()
         .map(|sig| {
-            format!(
-                "foreign import ccall {} \"__c_{}\" {sig}",
-                if sig.fn_safe {
-                    "safe"
-                } else {
-                    warning(sig);
-                    "unsafe"
-                },
-                sig.fn_name
-            )
+            let fn_name = &sig.fn_name;
+            // let msg = sig.fn_pragma.expect("TODO").msg;
+            // let pragma = "{{-# WARNING {fn_name} \"{msg}\" #-}}";
+            let safe = if sig.fn_safe {
+                "safe"
+            } else {
+                warning::warn(&format!(
+                    "Using: `foreign import ccall unsafe __c_, {fn_name} {sig}`
+        means that Haskell Garbage-Collector will be locked during the foreign call.
+        /!\\ Do not use it for long computations in a multithreaded application or
+        it will slow down a lot your whole program ..."
+                ));
+                "unsafe"
+            };
+            format!("foreign import ccall {safe} \"__c_{fn_name}\" {sig}")
         })
         .collect::<Vec<String>>()
         .join("\n");
@@ -56,23 +61,6 @@ import Foreign.Ptr
 
 {imports}"
     )
-}
-
-/// Warn user about what Haskell `unsafe` keyword does ...
-pub(crate) fn warning(_sig: &Signature) {
-    #[cfg(DIAGNOSTICS)]
-    proc_macro::Diagnostic::spanned(
-        [proc_macro::Span::call_site()].as_ref(),
-        proc_macro::Level::Warning,
-        format!(
-            "Using: `foreign import ccall unsafe __c_, {} {_sig}`
-means that Haskell Garbage-Collector will be locked during the foreign call.
-/!\\ Do not use it for long computations in a multithreaded application or
-it will slow down a lot your whole program ...",
-            _sig.fn_name
-        ),
-    )
-    .emit();
 }
 
 #[derive(Display, Error, Debug)]

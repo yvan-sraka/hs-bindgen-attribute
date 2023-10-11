@@ -14,21 +14,22 @@ version = "0.9.0"
 proc-macro = true
 
 [dependencies]
-reflexive = { version = "0.4", optional = true }
 displaydoc = "0.2"
 hs-bindgen-types = "0.9"
 lazy_static = { version = "1.4", optional = true }
 quote = "1.0"
+reflexive = { version = "0.4", optional = true }
 semver = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 syn = { version = "1.0", features = [ "full" ] }
 thiserror = "1.0"
 toml = "0.5"
+warning = { version = "0.1", path = "warning" }
+
+[build-dependencies]
+warning = { version = "0.1", path = "warning" }
 
 [features]
 default = []
 full = ["reflexive"]
 reflexive = ["dep:reflexive", "dep:lazy_static"]
-
-[build-dependencies]
-rustc_version = "0.2"
