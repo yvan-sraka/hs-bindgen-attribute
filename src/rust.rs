@@ -13,7 +13,7 @@ pub(crate) fn generate(
     // Parse targeted Haskell function signature either from proc macro
     // attributes or either from types from Rust `fn` item (using feature
     // `reflexive` which is enabled by default) ...
-    let mut sig = {
+    let sig = {
         let s = attrs.to_string();
         if cfg!(feature = "reflexive") && s.is_empty() {
             let sig = <haskell::Signature as reflexive::Eval<&syn::ItemFn>>::from(&item_fn);
@@ -32,14 +32,6 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
         )
     }
 
-    // Ensure that Haskell signature end by `IO` type ...
-    const UNSUPPORTED_RETURN_TYPE: &str =
-        "`hs-bindgen` currently only support Haskell function signature that end by returning `IO`";
-    let ret = match sig.fn_type.pop().expect(UNSUPPORTED_RETURN_TYPE) {
-        HsType::IO(x) => x,
-        _ => panic!("{UNSUPPORTED_RETURN_TYPE}"),
-    };
-
     // Iterate through function argument types ...
     let mut c_fn_args = quote! {};
     let mut rust_fn_values = quote! {};
@@ -47,23 +39,22 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
         let arg = format_ident!("__{i}");
         let c_ffi_safe_type = hs_c_ffi_type.quote();
         c_fn_args.extend(quote! { #arg: #c_ffi_safe_type, });
-        rust_fn_values.extend(quote! { traits::ReprRust::from(#arg), });
+        rust_fn_values.extend(quote! { traits::FromReprRust::from(#arg), });
     }
 
     // Generate C-FFI wrapper of Rust function ...
     let c_fn = format_ident!("__c_{}", sig.fn_name);
-    let c_ret = ret.quote();
+    let c_ret = sig.fn_type.last().unwrap_or(&HsType::Empty).quote();
     let extern_c_wrapper = quote! {
         #[no_mangle] // Mangling makes symbol names more difficult to predict.
                      // We disable it to ensure that the resulting symbol is really `#c_fn`.
         extern "C" fn #c_fn(#c_fn_args) -> #c_ret {
             // `traits` module is `hs-bindgen::hs-bindgen-traits`
             // n.b. do not forget to import it, e.g., with `use hs-bindgen::*`
-            traits::ReprC::from(#rust_fn(#rust_fn_values))
+            traits::FromReprC::from(#rust_fn(#rust_fn_values))
         }
     };
 
     // DEBUG: println!("{extern_c_wrapper}");
-    sig.fn_type.push(HsType::IO(ret));
     (sig, extern_c_wrapper.into())
 }
