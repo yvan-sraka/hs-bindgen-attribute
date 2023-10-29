@@ -36,6 +36,7 @@ impl Eval<&syn::ItemFn> for haskell::Signature {
         })));
         haskell::Signature {
             fn_name,
+            // fn_pragma: None,
             fn_safe,
             fn_type,
         }

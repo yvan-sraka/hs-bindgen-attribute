@@ -15,8 +15,11 @@ pub(crate) fn template(module: &str, signatures: &[Signature]) -> String {
         .iter()
         .map(|sig| {
             let fn_name = &sig.fn_name;
+
+            // TODO: Finish to implement pragmas support ...
             // let msg = sig.fn_pragma.expect("TODO").msg;
             // let pragma = "{{-# WARNING {fn_name} \"{msg}\" #-}}";
+
             let safe = if sig.fn_safe {
                 "safe"
             } else {
@@ -88,10 +91,27 @@ pub enum Error {
 /// FIXME: consider moving this struct and its traits' implementation into
 /// `hs-bindgen-types`
 pub(crate) struct Signature {
+    // pub(crate) fn_pragma: Option<Pragma>, // TODO: warning ?
     pub(crate) fn_name: String,
     pub(crate) fn_safe: bool,
     pub(crate) fn_type: Vec<HsType>,
 }
+
+// TODO LINE? https://downloads.haskell.org/~ghc/9.0.1/docs/html/users_guide/exts/pragmas.html#warning-deprecated-pragma
+
+// pub(crate) struct Pragma {
+//     pub(crate) kind: PragmaKind,
+//     pub(crate) msg: String,
+// }
+
+// pub(crate) enum PragmaKind {
+//     Deprecated,
+//     Warning
+// }
+
+// <!-- @yvan: Introduce a `depreciation` attribute, generating
+// https://downloads.haskell.org/~ghc/9.0.1/docs/html/users_guide/exts/pragmas.html#warning-deprecated-pragma
+// rather than directly using https://doc.rust-lang.org/reference/attributes/diagnostics.html#the-deprecated-attribute. -->
 
 impl std::fmt::Display for Signature {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -133,6 +153,7 @@ impl FromStr for Signature {
         assert!(x.next().is_none(), "{}", Error::MalformedSig(s.to_string()));
         Ok(Signature {
             fn_name,
+            // fn_pragma: None,
             fn_safe,
             fn_type,
         })
