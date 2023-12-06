@@ -21,7 +21,7 @@ dependencies = [
 
 [[package]]
 name = "hs-bindgen-attribute"
-version = "0.9.1"
+version = "0.9.2"
 dependencies = [
  "displaydoc",
  "hs-bindgen-types",

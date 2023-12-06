@@ -13,7 +13,7 @@ pub(crate) fn generate(
     // Parse targeted Haskell function signature either from proc macro
     // attributes or either from types from Rust `fn` item (using feature
     // `reflexive` which is enabled by default) ...
-    let sig = {
+    let mut sig = {
         let s = attrs.to_string();
         if cfg!(feature = "reflexive") && s.is_empty() {
             let sig = <haskell::Signature as reflexive::Eval<&syn::ItemFn>>::from(&item_fn);
@@ -32,6 +32,11 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
         )
     }
 
+    let ret = match sig.fn_type.pop().unwrap_or(HsType::Empty) {
+        HsType::IO(x) => x,
+        x => Box::new(x),
+    };
+
     // Iterate through function argument types ...
     let mut c_fn_args = quote! {};
     let mut rust_fn_values = quote! {};
@@ -44,7 +49,7 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
 
     // Generate C-FFI wrapper of Rust function ...
     let c_fn = format_ident!("__c_{}", sig.fn_name);
-    let c_ret = sig.fn_type.last().unwrap_or(&HsType::Empty).quote();
+    let c_ret = ret.quote();
     let extern_c_wrapper = quote! {
         #[no_mangle] // Mangling makes symbol names more difficult to predict.
                      // We disable it to ensure that the resulting symbol is really `#c_fn`.
@@ -55,6 +60,6 @@ with function with more than 8 arguments on platforms apart from x86_64 ..."
         }
     };
 
-    // DEBUG: println!("{extern_c_wrapper}");
+    sig.fn_type.push(HsType::IO(ret));
     (sig, extern_c_wrapper.into())
 }
