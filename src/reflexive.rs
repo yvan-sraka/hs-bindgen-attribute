@@ -66,19 +66,3 @@ Haskell type signature of your binding: #[hs_bindgen(HASKELL TYPE SIGNATURE)]",
             })
     }
 }
-
-/// Warn user about the build-time cost of relying on `reflexive` ...
-///
-/// n.b. proc-macro diagnostics require nightly `proc_macro_diagnostic` feature
-pub(crate) fn warning(_sig: &haskell::Signature) {
-    #[cfg(DIAGNOSTICS)]
-    proc_macro::Diagnostic::spanned(
-        [proc_macro::Span::call_site()].as_ref(),
-        proc_macro::Level::Warning,
-        format!(
-            "Implicit Haskell signature declaration could slow down compilation,
-rather derive it as: #[hs_bindgen({_sig})]"
-        ),
-    )
-    .emit();
-}

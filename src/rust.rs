@@ -17,7 +17,14 @@ pub(crate) fn generate(
         let s = attrs.to_string();
         if cfg!(feature = "reflexive") && s.is_empty() {
             let sig = <haskell::Signature as reflexive::Eval<&syn::ItemFn>>::from(&item_fn);
-            reflexive::warning(&sig);
+            // Warn user about the build-time cost of relying on `reflexive` ...
+            //
+            // n.b. proc-macro diagnostics require nightly `proc_macro_diagnostic` feature
+            // https://github.com/rust-lang/rust/issues/54140
+            warning::warn(&format!(
+                "Implicit Haskell signature declaration could slow down compilation,
+            rather derive it as: #[hs_bindgen({sig})]"
+            ));
             sig
         } else {
             s.parse().unwrap_or_else(|e| panic!("{e}"))
